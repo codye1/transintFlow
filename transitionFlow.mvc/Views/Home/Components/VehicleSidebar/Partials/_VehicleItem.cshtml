@@ -5,7 +5,6 @@
         (Model.Vehicle.CreatedById == Model.User.Id ||
          Model.User.Roles.Contains(AppRole.Admin) ||
          Model.User.Roles.Contains(AppRole.Moderator));
-
     var routeIdValue = Model.Vehicle.RouteId.HasValue ? Model.Vehicle.RouteId.Value.ToString() : string.Empty;
 }
 <li class="vehicle-item group"
@@ -24,33 +23,32 @@
             <span class="vehicle-badge">@Model.Vehicle.TypeDescription</span>
         </div>
         <div class="vehicle-subtext">@Model.Vehicle.Model · @Model.Vehicle.Capacity пас.</div>
-
         @if (currentRoute != null)
         {
             <div class="vehicle-route-info">Маршрут №@currentRoute.Number</div>
         }
     </div>
-
     <div class="vehicle-inline-controls">
-        <select class="form-input input-sm js-vehicle-route-select" data-id="@Model.Vehicle.Id">
-            <option value="">— Без маршруту</option>
+        <select class="form-input input-sm js-vehicle-route-select route-select-target"
+                data-id="@Model.Vehicle.Id"
+                data-empty-value=""
+                data-empty-label="— Без маршруту">
+     
             @foreach (var route in Model.Routes)
             {
-                <!option value="@route.Id" @(route.Id == Model.Vehicle.RouteId ? "selected" : "")>
-                №@route.Number — @route.Name
-                </!option>
+                <option value="@route.Id" selected="@(route.Id == Model.Vehicle.RouteId)">
+                    №@route.Number — @route.Name
+                </option>
             }
         </select>
-
         <select class="form-input input-sm js-vehicle-status-select" data-id="@Model.Vehicle.Id">
             @foreach (var status in Model.AvailableStatuses)
             {
-                <!option value="@status.Key" @(status.Key == Model.Vehicle.Status ? "selected" : "")>
-                @status.Value
-                </!option>
+                <option value="@status.Key" selected="@(status.Key == Model.Vehicle.Status)">
+                    @status.Value
+                </option>
             }
         </select>
-
         @if (canManage)
         {
             <div class="vehicle-actions">

@@ -2,16 +2,19 @@
 using System.Net.Http.Json;
 using TransitFlow.mvc.Models;
 using TransitFlow.mvc.Models.DTO;
+using TransitFlow.mvc.Services;
 
 namespace TransitFlow.mvc.Controllers
 {
     public class StopsController : BaseController
     {
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ICurrentUserService _currentUserService;
 
-        public StopsController(IHttpClientFactory httpClientFactory)
+        public StopsController(IHttpClientFactory httpClientFactory, ICurrentUserService currentUserService)
         {
             _httpClientFactory = httpClientFactory;
+            _currentUserService = currentUserService;
         }
 
         [HttpPost("/stops")]
@@ -35,7 +38,7 @@ namespace TransitFlow.mvc.Controllers
                 var itemModel = new StopItemViewModel
                 {
                     Stop = createdStop,
-                    User = GetUser()
+                    User = _currentUserService.GetUser()
                 };
 
                 return PartialView("~/Views/Home/Components/StopSidebar/Partials/_StopItem.cshtml", itemModel);

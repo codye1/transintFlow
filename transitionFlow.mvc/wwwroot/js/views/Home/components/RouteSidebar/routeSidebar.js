@@ -1,6 +1,7 @@
 ﻿import api from './routeSidebarApi.js';
 import validator from './routeSidebarValidator.js';
 import Modal from '../../../../helpers/ModalManager.js';
+import Banner from '../../../../helpers/SelectionBanner.js';
 import { showApiErrors } from '../../../../helpers/showApiErrors.js';
 
 $(function () {
@@ -108,8 +109,12 @@ $(function () {
                         const newRouteStops = $newItem.data('stops');
 
                         const map = getMap();
+
                         if (map && typeof map.addRoute === 'function' && Array.isArray(newRouteStops) && newRouteStops.length >= 2) {
-                            await map.addRoute(newRouteId, newRouteStops, newRouteColor);
+                            await map.addRoute(newRouteId, newRouteStops, newRouteColor, {
+                                number: $newItem.find('.route-number').text().replace('№', '').trim(),
+                                name: $newItem.find('.route-name').text().trim()
+                            });
                         }
 
                         Modal.close();
@@ -246,44 +251,29 @@ $(function () {
 
             Modal.close();
 
-            $('#banner-text').text('Оберіть наявні зупинки на карті по черзі. Після завершення натисніть "Підтвердити"');
-            $('#btn-banner-confirm').removeClass('hidden');
-            $('#map-selection-banner').removeClass('hidden');
-
-            setupBannerEvents();
-
             const map = getMap();
+
+            function finishRouteSelection() {
+                Banner.hide();
+                if (map && typeof map.disableRouteStopsSelection === 'function') {
+                    map.disableRouteStopsSelection();
+                }
+                openAddRouteModal();
+            }
+
+            Banner.show({
+                text: 'Оберіть наявні зупинки на карті по черзі. Після завершення натисніть "Підтвердити"',
+                showConfirm: true,
+                onConfirm: finishRouteSelection,
+                onCancel: finishRouteSelection
+            });
+
             if (map && typeof map.enableRouteStopsSelection === 'function') {
                 map.enableRouteStopsSelection(allStopsArray, savedRouteState.stopIds, function (updatedStopIds) {
                     savedRouteState.stopIds = updatedStopIds;
-                    $('#banner-text').text(`Обрано зупинок для маршруту: ${updatedStopIds.length}`);
+                    Banner.setText(`Обрано зупинок для маршруту: ${updatedStopIds.length}`);
                 });
             }
-        });
-    }
-
-    function setupBannerEvents() {
-        $('#btn-banner-confirm').off('click');
-        $('#btn-banner-cancel').off('click');
-
-        $('#btn-banner-confirm').on('click', function () {
-            if (!savedRouteState) return;
-            $('#map-selection-banner').addClass('hidden');
-            const map = getMap();
-            if (map && typeof map.disableRouteStopsSelection === 'function') {
-                map.disableRouteStopsSelection();
-            }
-            openAddRouteModal();
-        });
-
-        $('#btn-banner-cancel').on('click', function () {
-            if (!savedRouteState) return;
-            $('#map-selection-banner').addClass('hidden');
-            const map = getMap();
-            if (map && typeof map.disableRouteStopsSelection === 'function') {
-                map.disableRouteStopsSelection();
-            }
-            openAddRouteModal();
         });
     }
 });

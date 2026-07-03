@@ -9,6 +9,19 @@
     <link rel="stylesheet" href="~/css/views/Home/home.css" asp-append-version="true" />
 }
 
+@section HeaderFilter {
+    <div class="route-filter">
+        <label for="route-filter-select" class="route-filter-label">Фільтр маршруту:</label>
+        <select id="route-filter-select" class="route-filter-select route-select-target" data-empty-value="all" data-empty-label="Всі маршрути">
+            <option value="all">Всі маршрути</option>
+            @foreach (var route in Model.Routes)
+            {
+                <option value="@route.Id">№@route.Number — @route.Name</option>
+            }
+        </select>
+    </div>
+}
+
 <div class="main-layout">
     <partial name="Partials/_StatsWidget" model="Model" />
 

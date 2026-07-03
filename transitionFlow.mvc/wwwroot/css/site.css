@@ -34,6 +34,7 @@
     --radius-lg: 0.75rem;
     --icon-vehicle-size: 32px;
     --icon-stop-size: 14px;
+    --icon-size:14px;
 }
 
 [data-theme='dark'] {
@@ -64,12 +65,13 @@ body {
 header {
     background-color: var(--color-bg);
     border-bottom: 1px solid var(--color-border);
-    padding: var(--space-4) var(--space-5);
+    padding: var(--space-4) 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     flex-shrink: 0;
+    
 }
 
 main[role="main"] {
@@ -77,6 +79,33 @@ main[role="main"] {
     min-height: 0;
     display: flex;
     flex-direction: column;
+}
+
+.header-container {
+    max-width: 80rem;
+    padding: 0 var(--space-5);
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}
+
+@media (min-width: 640px) {
+    .header-container{
+        flex-direction:row;
+    }
+}
+
+.header-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-icon-btn img {
+    width: calc(var(--icon-size)*2) !important;
+    height: calc(var(--icon-size)*2) !important;
 }
 
 .header-title {
@@ -115,6 +144,9 @@ main[role="main"] {
     min-width: 400px;
     max-width: 600px;
     width: 100%;
+
+    max-height:90vh;
+    overflow-y:auto;
 }
 
 .js-close-modal{
@@ -181,7 +213,7 @@ main[role="main"] {
 .icon-btn {
     background: none;
     border: none;
-    padding: 4px;
+    padding: var(--space-1);
     border-radius: var(--radius-sm, 4px);
     cursor: pointer;
     display: flex;
@@ -195,14 +227,11 @@ main[role="main"] {
     }
 
     .icon-btn img {
-        width: 14px;
-        height: 14px;
+        width: var(--icon-size);
+        height: var(--icon-size);
         display: block;
     }
 
-
-
-/* ������ �� �������� ������������ */
 
 .spinner, .spinner-icon {
     display: none;

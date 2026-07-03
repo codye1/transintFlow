@@ -12,35 +12,31 @@
             <img class="stat-icon " src="~/images/icons/routeIcon.svg" alt="RouteIcon" />
             <span class="stat-label">Маршрутів</span>
         </div>
-        <div class="stat-value">@Model.Routes.Count</div>
-        <div class="stat-sub">на карті</div>
+        <div class="stat-value" id="stat-routes-count">@Model.Routes.Count</div>
+        <div class="stat-sub" id="stat-routes-sub">@Model.Routes.Count на карті</div>
     </div>
-
     <div class="stat-badge">
         <div class="stat-badge-header">
             <img class="stat-icon " src="~/images/icons/stopIcon.svg" alt="StopIcon" />
             <span class="stat-label">Зупинок</span>
         </div>
-        <div class="stat-value">@Model.Stops.Count</div>
-        <div class="stat-sub">на карті</div>
+        <div class="stat-value" id="stat-stops-count">@Model.Stops.Count</div>
+        <div class="stat-sub" id="stat-stops-sub">@Model.Stops.Count на карті</div>
     </div>
-
     <div class="stat-badge">
         <div class="stat-badge-header">
             <img class="stat-icon " src="~/images/icons/vehicleIcon.svg" alt="VehicleIcon" />
-
             <span class="stat-label">Транспорт</span>
         </div>
-        <div class="stat-value">@Model.Vehicles.Count</div>
-        <div class="stat-sub">@onRoute на маршруті</div>
+        <div class="stat-value" id="stat-vehicles-count">@Model.Vehicles.Count</div>
+        <div class="stat-sub" id="stat-vehicles-sub">@onRoute на маршруті</div>
     </div>
-
     <div class="stat-badge">
         <div class="stat-badge-header">
             <img class="stat-icon " src="~/images/icons/activityIcon.svg" alt="ActivityIcon" />
             <span class="stat-label">Активність</span>
         </div>
-        <div class="stat-value">@activityPct%</div>
+        <div class="stat-value" id="stat-activity-pct">@activityPct%</div>
         <div class="stat-sub">завантаження</div>
     </div>
 </div>

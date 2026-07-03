@@ -11,11 +11,14 @@ wwwroot\images\icons\add.svg
 wwwroot\images\icons\close.svg
 wwwroot\images\icons\delete.svg
 wwwroot\images\icons\edit.svg
+wwwroot\images\icons\login.svg
+wwwroot\images\icons\logout.svg
 wwwroot\images\icons\routeIcon.svg
 wwwroot\images\icons\stopIcon.svg
 wwwroot\images\icons\vehicleIcon.svg
 wwwroot\js\helpers\handleApiErrors.js
 wwwroot\js\helpers\ModalManager.js
+wwwroot\js\helpers\SelectionBanner.js
 wwwroot\js\helpers\showApiErrors.js
 wwwroot\js\helpers\TransitMap.js
 wwwroot\js\site.js

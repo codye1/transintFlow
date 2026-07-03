@@ -186,9 +186,3 @@
 .vehicle-item:hover .vehicle-actions {
     opacity: 1;
 }
-
-.icon-btn img {
-    width: 14px;
-    height: 14px;
-    display: block;
-}

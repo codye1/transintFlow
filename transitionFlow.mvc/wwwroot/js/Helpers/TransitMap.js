@@ -7,16 +7,19 @@
         this.stopColorMap = {};
         this.stopsData = [];
         this.routesData = [];
+        this.activeRouteFilter = null;
         this.vehiclesData = [];
         this._mapClickHandler = null;
         this.pendingMarker = null;
         this.markers = {};
         this.routeLines = {};
         this.previewPolyline = null;
-
+        this._previewRequestId = 0;
         this.vehicleMarkers = {};
         this.vehicleProgress = {};
         this.animationInterval = null;
+
+        this._changeCallbacks = [];
 
         this.init();
     }
@@ -29,6 +32,28 @@
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(this.map);
+    }
+
+    onMapChange(callback) {
+        if (typeof callback === 'function') {
+            this._changeCallbacks.push(callback);
+        }
+        return this;
+    }
+
+    offMapChange(callback) {
+        this._changeCallbacks = this._changeCallbacks.filter(cb => cb !== callback);
+    }
+
+    _emitMapChange(e = null) {
+        const stats = this.getVisibleStats();
+        this._changeCallbacks.forEach(cb => {
+            try {
+                cb(e, stats);
+            } catch (err) {
+                console.error('onMapChange callback error:', err);
+            }
+        });
     }
 
     createVehicleIcon(color, type) {
@@ -47,6 +72,7 @@
             p1[1] + (p2[1] - p1[1]) * t
         ];
     }
+
     renderAndAnimateVehicles(vehicles, routes, stops) {
         if (!this.map) return;
 
@@ -59,7 +85,6 @@
         this.stopsData = Array.isArray(stops) ? [...stops] : [];
 
         const onRouteVehicles = vehicles.filter(v => v.status === "OnRoute" && v.routeId);
-
 
         onRouteVehicles.forEach(v => {
             if (this.vehicleProgress[v.id] === undefined) {
@@ -102,18 +127,20 @@
                     this.vehicleMarkers[v.id].setLatLng(currentPos);
                 } else {
                     const typeLabel = v.type === "Tram" ? "Трамвай" : v.type === "trolleybus" ? "Тролейбус" : "Автобус";
-                    console.log(v.type
-
-                    )
                     const marker = L.marker(currentPos, {
                         icon: this.createVehicleIcon(routeColor, v.type)
                     }).bindPopup(`
-                        <div style="font-family: var(--font-body); font-size: 14px;">
-                            <div style="font-weight: bold;">${v.plateNumber}</div>
-                            <div style="font-size: 12px; color: #6B7280;">${typeLabel} · ${v.model}</div>
-                            <div style="font-size: 12px; margin-top: 2px;">Маршрут №${route.number}</div>
-                        </div>
-                    `).addTo(this.map);
+    <div style="font-family: var(--font-body); font-size: 14px;">
+        <div style="font-weight: bold;">${v.plateNumber}</div>
+        <div style="font-size: 12px; color: #6B7280;">${typeLabel} · ${v.model}</div>
+        <div style="font-size: 12px; margin-top: 2px;">Маршрут №${route.number}</div>
+    </div>
+`);
+
+                    const passesFilter = this.activeRouteFilter === null || Number(v.routeId) === this.activeRouteFilter;
+                    if (passesFilter) {
+                        marker.addTo(this.map);
+                    }
 
                     this.vehicleMarkers[v.id] = marker;
                 }
@@ -129,6 +156,8 @@
             });
 
         }, 100);
+
+        this._emitMapChange();
     }
 
     createStopIcon(color) {
@@ -164,11 +193,13 @@
         this.markers = {};
 
         $.each(stops, (index, stop) => {
-            this.addStop(stop);
+            this.addStop(stop, false);
         });
+
+        this._emitMapChange();
     }
 
-    addStop(stop) {
+    addStop(stop, emit = true) {
         if (!this.map || !stop) return null;
 
         const stopId = Number(stop.id ?? stop.Id);
@@ -206,6 +237,10 @@
             longitude
         });
 
+        if (emit) {
+            this._emitMapChange();
+        }
+
         return marker;
     }
 
@@ -225,6 +260,8 @@
         if (Array.isArray(this.routesData) && this.routesData.length > 0) {
             void this.renderRoutes(this.routesData, this.stopsData);
         }
+
+        this._emitMapChange();
     }
 
     async fetchOSRMRoute(coords) {
@@ -254,6 +291,7 @@
             this.map.removeLayer(line);
         });
         this.routeLines = {};
+        this.routesData = Array.isArray(routes) ? [...routes] : [];
 
         for (const route of routes) {
             if (!route.stops || route.stops.length < 2) continue;
@@ -280,6 +318,8 @@
 
             this.routeLines[route.id] = polyline;
         }
+
+        this._emitMapChange();
     }
 
     updateStopPopup(id, newName) {
@@ -293,6 +333,8 @@
             $html.find('.popup-stop-name').text(newName);
             marker.setPopupContent($html.html());
         }
+
+        this._emitMapChange();
     }
 
     enableMapClickSelection(onMapClick) {
@@ -334,6 +376,7 @@
             }
         }
     }
+
     enableRouteStopsSelection(allStops, currentStopIds, onStopSelected) {
         this.disableRouteStopsSelection();
         this._allStops = allStops;
@@ -389,6 +432,8 @@
     }
 
     async updatePreviewRoute() {
+        const requestId = ++this._previewRequestId;
+
         if (this.previewPolyline) {
             this.map.removeLayer(this.previewPolyline);
             this.previewPolyline = null;
@@ -403,13 +448,13 @@
                 stopCoords.push([targetStop.latitude || targetStop.Latitude, targetStop.longitude || targetStop.Longitude]);
             }
         }
-
         if (stopCoords.length < 2) return;
 
         let pathPoints = await this.fetchOSRMRoute(stopCoords);
-        if (!pathPoints) {
-            pathPoints = stopCoords;
-        }
+
+        if (requestId !== this._previewRequestId) return;
+
+        if (!pathPoints) pathPoints = stopCoords;
 
         this.previewPolyline = L.polyline(pathPoints, {
             color: '#10B981',
@@ -420,6 +465,7 @@
     }
 
     disableRouteStopsSelection() {
+        this._previewRequestId++
         $.each(this.markers, (stopId, marker) => {
             const numericId = Number(stopId);
 
@@ -534,7 +580,7 @@
         this.renderAndAnimateVehicles(this.vehiclesData, this.routesData, this.stopsData);
     }
 
-    async addRoute(routeId, stopIds, color) {
+    async addRoute(routeId, stopIds, color, routeMeta = {}) {
         if (!this.map || !stopIds || stopIds.length < 2) return;
 
         if (this.routeLines[routeId]) {
@@ -565,6 +611,18 @@
         }).addTo(this.map);
 
         this.routeLines[routeId] = polyline;
+
+        // Keep routesData in sync so any UI relying on it (filters, selects) updates automatically
+        const numericRouteId = Number(routeId);
+        const existingIndex = this.routesData.findIndex(r => Number(r.id) === numericRouteId);
+        const routeEntry = { id: numericRouteId, stops: stopIds, color, ...routeMeta };
+        if (existingIndex >= 0) {
+            this.routesData[existingIndex] = { ...this.routesData[existingIndex], ...routeEntry };
+        } else {
+            this.routesData.push(routeEntry);
+        }
+
+        this._emitMapChange();
     }
 
     deleteRoute(routeId) {
@@ -574,6 +632,92 @@
             this.map.removeLayer(this.routeLines[routeId]);
             delete this.routeLines[routeId];
         }
+
+        const numericRouteId = Number(routeId);
+        this.routesData = this.routesData.filter(r => Number(r.id) !== numericRouteId);
+
+        this.vehiclesData = this.vehiclesData.map(v => {
+            const vRouteId = v.routeId ?? v.RouteId;
+            if (Number(vRouteId) === numericRouteId) {
+                return { ...v, routeId: null };
+            }
+            return v;
+        });
+
+        this.renderAndAnimateVehicles(this.vehiclesData, this.routesData, this.stopsData);
+    }
+
+    setRouteFilter(routeId) {
+        this.activeRouteFilter = routeId === null ? null : Number(routeId);
+        this.applyRouteFilter();
+    }
+
+    applyRouteFilter() {
+        if (!this.map) return;
+        const filter = this.activeRouteFilter;
+
+        $.each(this.routeLines, (id, line) => {
+            const show = filter === null || Number(id) === filter;
+            if (show && !this.map.hasLayer(line)) line.addTo(this.map);
+            if (!show && this.map.hasLayer(line)) this.map.removeLayer(line);
+        });
+
+        const selectedRoute = filter === null
+            ? null
+            : this.routesData.find(r => Number(r.id) === filter);
+        const stopIdsForRoute = selectedRoute?.stops?.map(Number) ?? null;
+
+        $.each(this.markers, (stopId, marker) => {
+            const show = filter === null || (stopIdsForRoute && stopIdsForRoute.includes(Number(stopId)));
+            if (show && !this.map.hasLayer(marker)) marker.addTo(this.map);
+            if (!show && this.map.hasLayer(marker)) this.map.removeLayer(marker);
+        });
+
+        $.each(this.vehicleMarkers, (vehicleId, marker) => {
+            const vehicle = this.vehiclesData.find(v => Number(v.id ?? v.Id) === Number(vehicleId));
+            const show = filter === null || (vehicle && Number(vehicle.routeId) === filter);
+            if (show && !this.map.hasLayer(marker)) marker.addTo(this.map);
+            if (!show && this.map.hasLayer(marker)) this.map.removeLayer(marker);
+        });
+
+        this._emitMapChange();
+    }
+
+    getVisibleStats() {
+        if (!this.map) {
+            return { routes: 0, stops: 0, vehicles: 0, onRoute: 0, routesData: [] };
+        }
+
+        let visibleRoutes = 0;
+        $.each(this.routeLines, (id, line) => {
+            if (this.map.hasLayer(line)) visibleRoutes++;
+        });
+
+        let visibleStops = 0;
+        $.each(this.markers, (id, marker) => {
+            if (this.map.hasLayer(marker)) visibleStops++;
+        });
+
+        let onRoute = 0;
+        $.each(this.vehiclesData, (index, vehicle) => {
+            const status = vehicle.status ?? vehicle.Status;
+            const routeId = vehicle.routeId ?? vehicle.RouteId;
+            const matchesFilter = this.activeRouteFilter === null || Number(routeId) === this.activeRouteFilter;
+            if (status === 'OnRoute' && matchesFilter) {
+                onRoute++;
+            }
+        });
+
+        return {
+            allRoutes: Object.keys(this.routeLines).length,
+            routes: visibleRoutes,
+            allStops: Object.keys(this.markers).length,
+            stops: visibleStops,
+            allVehicles: this.vehiclesData.length,
+            vehicles: this.vehiclesData.length,
+            onRoute,
+            routesData: this.routesData
+        };
     }
 }
 

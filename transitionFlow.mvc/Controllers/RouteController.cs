@@ -2,16 +2,21 @@
 using System.Net.Http.Json;
 using TransitFlow.mvc.Models;
 using TransitFlow.mvc.Models.DTO;
+using TransitFlow.mvc.Services;
 
 namespace TransitFlow.mvc.Controllers
 {
     public class RouteController : BaseController
     {
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ICurrentUserService _currentUserService;
+        private readonly ILogger<RouteController> _logger;
 
-        public RouteController(IHttpClientFactory httpClientFactory)
+        public RouteController(IHttpClientFactory httpClientFactory, ICurrentUserService currentUserService, ILogger<RouteController> logger )
         {
             _httpClientFactory = httpClientFactory;
+            _currentUserService = currentUserService;
+            _logger = logger;
         }
 
         [HttpGet("/routes")]
@@ -45,11 +50,22 @@ namespace TransitFlow.mvc.Controllers
                         ["_general"] = new[] { "Unable to read API response." }
                     }
                 });
+            var user = _currentUserService.GetUser();
 
+            if (user != null)
+            {
+                _logger.LogInformation("Current user: Id={UserId}, Roles={Roles}",
+                    user.Id, string.Join(", ", user.Roles));
+                _logger.LogInformation("Creator " + createdRoute.CreatedById);
+            }
+            else
+            {
+                _logger.LogInformation("No authenticated user found.");
+            }
             var itemModel = new RouteItemViewModel
             {
                 Route = createdRoute,
-                User = GetUser()
+                User = _currentUserService.GetUser()
             };
 
             return PartialView("~/Views/Home/Components/RouteSidebar/Partials/_RouteItem.cshtml", itemModel);

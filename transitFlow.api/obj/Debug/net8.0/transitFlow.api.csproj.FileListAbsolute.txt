@@ -156,10 +156,10 @@ D:\С#\transitFlow.api\transitFlow.api\obj\Debug\net8.0\staticwebassets.build.js
 D:\С#\transitFlow.api\transitFlow.api\obj\Debug\net8.0\staticwebassets.build.json.cache
 D:\С#\transitFlow.api\transitFlow.api\obj\Debug\net8.0\staticwebassets.development.json
 D:\С#\transitFlow.api\transitFlow.api\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-D:\С#\transitFlow.api\transitFlow.api\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 D:\С#\transitFlow.api\transitFlow.api\obj\Debug\net8.0\transitF.02E307EB.Up2Date
 D:\С#\transitFlow.api\transitFlow.api\obj\Debug\net8.0\transitFlow.api.dll
 D:\С#\transitFlow.api\transitFlow.api\obj\Debug\net8.0\refint\transitFlow.api.dll
 D:\С#\transitFlow.api\transitFlow.api\obj\Debug\net8.0\transitFlow.api.pdb
 D:\С#\transitFlow.api\transitFlow.api\obj\Debug\net8.0\transitFlow.api.genruntimeconfig.cache
 D:\С#\transitFlow.api\transitFlow.api\obj\Debug\net8.0\ref\transitFlow.api.dll
+D:\С#\transitFlow.api\transitFlow.api\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

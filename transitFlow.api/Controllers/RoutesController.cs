@@ -122,6 +122,7 @@ namespace transitFlow.api.Controllers
                 Name = newRoute.Name,
                 Type = dto.Type,
                 Color = dto.Color,
+                CreatedById = newRoute.CreatedById,
                 Stops = newRoute.RouteStops
                     .OrderBy(rs => rs.SequenceNumber)
                     .Select(rs => rs.StopId)

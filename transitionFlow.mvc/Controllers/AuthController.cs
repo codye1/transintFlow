@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Json;
 using TransitFlow.mvc.Models.DTO;
+using TransitFlow.mvc.Services;
 
 namespace TransitFlow.mvc.Controllers
 {
@@ -11,6 +12,7 @@ namespace TransitFlow.mvc.Controllers
         public AuthController(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
+
         }
 
         [HttpGet("/login")]
@@ -64,6 +66,16 @@ namespace TransitFlow.mvc.Controllers
             }
 
             return await ForwardApiErrorAsync(response);
+        }
+
+        [HttpPost("/auth/logout")]
+        [ValidateAntiForgeryToken]
+
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("accessToken");
+            Response.Cookies.Delete("refreshToken");
+            return RedirectToAction("Index", "Home");
         }
     }
 }

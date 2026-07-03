@@ -1,20 +1,24 @@
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
-using TransitFlow.mvc.Models;
-using System.IdentityModel.Tokens.Jwt;
-using TransitFlow.mvc.Models.DTO;
 using TransitFlow.mvc.Controllers;
+using TransitFlow.mvc.Models;
+using TransitFlow.mvc.Models.DTO;
+using TransitFlow.mvc.Services;
 
 namespace TransitFlow.mvc.Controllers
 {
     public class HomeController : BaseController
     {
         private readonly HttpClient _httpClient;
+        private readonly ICurrentUserService _currentUserService;
 
-        public HomeController(IHttpClientFactory httpClientFactory)
+        public HomeController(IHttpClientFactory httpClientFactory, ICurrentUserService currentUserService)
         {
             _httpClient = httpClientFactory.CreateClient("TransitApi");
+
+            _currentUserService = currentUserService;
         }
 
         public async Task<IActionResult> Index()
@@ -63,7 +67,7 @@ namespace TransitFlow.mvc.Controllers
                 Stops = stops,
                 Routes = routes,
                 Vehicles = vehicles,
-                User = GetUser()
+                User = _currentUserService.GetUser()
             };
 
             return View(model); 

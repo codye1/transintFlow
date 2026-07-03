@@ -1,4 +1,9 @@
 ﻿@inject TransitFlow.mvc.Services.IComponentAssetManager AssetManager
+@inject TransitFlow.mvc.Services.ICurrentUserService CurrentUserService
+@{
+    var currentUser = CurrentUserService.GetUser();
+    var userAuthenticated = currentUser != null;
+}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -18,9 +23,29 @@
 </head>
 <body>
     <header>
-        <div>
-            <h1 class="header-title">TransitSim</h1>
-            <p class="header-subtitle">Система моделювання міського транспорту</p>
+        <div class="header-container">
+            <div class="header-meta"> 
+                <h1 class="header-title">TransitSim</h1>
+                <p class="header-subtitle">Система моделювання міського транспорту</p>
+            </div>
+            <div class="header-buttons">
+                @RenderSection("HeaderFilter", required: false)
+
+                @if (userAuthenticated)
+                {
+                    <form asp-controller="Auth" asp-action="Logout" method="post" class="logout-form">
+                        <button type="submit" class="icon-btn header-icon-btn" title="Logout">
+                            <img src="~/images/icons/logout.svg" alt="IconBtn" />
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <a asp-controller="Auth" asp-action="Login" class="icon-btn header-icon-btn" title="Login">
+                        <img src="~/images/icons/login.svg" alt="IconBtn" />
+                    </a>
+                }
+            </div>
         </div>
     </header>
         <main role="main">
