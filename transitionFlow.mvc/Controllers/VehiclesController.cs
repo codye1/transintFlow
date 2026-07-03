@@ -4,16 +4,20 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using TransitFlow.mvc.Models;
 using TransitFlow.mvc.Models.DTO;
+using TransitFlow.mvc.Services;
 
 namespace TransitFlow.mvc.Controllers
 {
     public class VehiclesController : BaseController
     {
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ICurrentUserService _currentUserService;
 
-        public VehiclesController(IHttpClientFactory httpClientFactory)
+        public VehiclesController(IHttpClientFactory httpClientFactory, ICurrentUserService currentUserService)
         {
             _httpClientFactory = httpClientFactory;
+            _currentUserService = currentUserService;
+
         }
 
         // GET: /vehicles
@@ -71,7 +75,7 @@ namespace TransitFlow.mvc.Controllers
                 {
                     Vehicle = createdVehicle,
                     Routes = routes,
-                    User = GetUser()
+                    User = _currentUserService.GetUser()
                 };
 
                 return PartialView("~/Views/Home/Components/VehicleSidebar/Partials/_VehicleItem.cshtml", itemModel);

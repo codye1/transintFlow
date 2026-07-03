@@ -23,52 +23,14 @@
 
         @foreach (var vehicle in Model.Vehicles)
         {
-            var currentRoute = Model.Routes.FirstOrDefault(r => r.Id == vehicle.RouteId);
-
-            <li class="vehicle-item group" data-id="@vehicle.Id">
-                <div class="vehicle-main-info">
-                    <div class="vehicle-meta">
-                        <div class="status-indicator status-@vehicle.Status"></div>
-                        <span class="vehicle-plate">@vehicle.PlateNumber</span>
-                        <span class="vehicle-badge">@vehicle.TypeDescription</span>
-                    </div>
-                    <div class="vehicle-subtext">@vehicle.Model · @vehicle.Capacity пас.</div>
-
-                    @if (currentRoute != null)
-                    {
-                        <div class="vehicle-route-info">Маршрут №@currentRoute.Number</div>
-                    }
-                </div>
-
-                <div class="vehicle-inline-controls">
-                    <select class="form-input input-sm js-vehicle-route-select" data-id="@vehicle.Id">
-                        <option value="">— Без маршруту</option>
-                        @foreach (var route in Model.Routes)
-                        {
-                            <!option value="@route.Id" @(route.Id == vehicle.RouteId ? "selected" : "")>
-                            №@route.Number — @route.Name
-                            </!option>
-                        }
-                    </select>
-
-                    <select class="form-input input-sm js-vehicle-status-select" data-id="@vehicle.Id">
-                        @foreach (var status in Model.AvailableStatuses)
-                        {
-                            <!option value="@status.Key" @(status.Key == vehicle.Status ? "selected" : "")>
-                            @status.Value
-                            </!option>
-                        }
-                    </select>
-                    @if (Model.User != null && (vehicle.CreatedById == Model.User.Id || (Model.User.Roles.Contains(AppRole.Admin) || Model.User.Roles.Contains(AppRole.Moderator))))
-                    {
-                        <div class="vehicle-actions">
-                            <button class="icon-btn btn-delete-vehicle" title="Видалити">
-                                <img src="~/images/icons/delete.svg" alt="DeleteIcon" />
-                            </button>
-                        </div>
-                    }
-                </div>
-            </li>
+            var itemViewModel = new TransitFlow.mvc.Models.VehicleItemViewModel
+            {
+                Vehicle = vehicle,
+                Routes = Model.Routes,
+                AvailableStatuses = Model.AvailableStatuses,
+                User = Model.User
+            };
+            <partial name="~/Views/Home/Components/VehicleSidebar/Partials/_VehicleItem.cshtml" model="itemViewModel" />
         }
     </ul>
 

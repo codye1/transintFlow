@@ -13,6 +13,7 @@ builder.Services.AddHttpClient("TransitApi", client =>
 .AddHttpMessageHandler<AuthHeaderHandler>();
 
 builder.Services.AddScoped<IComponentAssetManager, ComponentAssetManager>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 var app = builder.Build();
 

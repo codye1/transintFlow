@@ -34,10 +34,10 @@ D:\С#\transitFlow.api\transitionFlow.mvc\obj\Debug\net8.0\staticwebassets.build
 D:\С#\transitFlow.api\transitionFlow.mvc\obj\Debug\net8.0\staticwebassets.build.json.cache
 D:\С#\transitFlow.api\transitionFlow.mvc\obj\Debug\net8.0\staticwebassets.development.json
 D:\С#\transitFlow.api\transitionFlow.mvc\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-D:\С#\transitFlow.api\transitionFlow.mvc\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 D:\С#\transitFlow.api\transitionFlow.mvc\obj\Debug\net8.0\TransitF.1ED80AF9.Up2Date
 D:\С#\transitFlow.api\transitionFlow.mvc\obj\Debug\net8.0\TransitFlow.mvc.dll
 D:\С#\transitFlow.api\transitionFlow.mvc\obj\Debug\net8.0\refint\TransitFlow.mvc.dll
 D:\С#\transitFlow.api\transitionFlow.mvc\obj\Debug\net8.0\TransitFlow.mvc.pdb
 D:\С#\transitFlow.api\transitionFlow.mvc\obj\Debug\net8.0\TransitFlow.mvc.genruntimeconfig.cache
 D:\С#\transitFlow.api\transitionFlow.mvc\obj\Debug\net8.0\ref\TransitFlow.mvc.dll
+D:\С#\transitFlow.api\transitionFlow.mvc\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

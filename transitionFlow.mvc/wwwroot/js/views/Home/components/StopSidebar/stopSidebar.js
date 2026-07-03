@@ -1,6 +1,7 @@
 ﻿import api from './stopSidebarApi.js';
 import validator from './stopSidebarValidator.js';
 import Modal from '../../../../helpers/ModalManager.js';
+import Banner from '../../../../helpers/SelectionBanner.js';
 import { showApiErrors } from '../../../../helpers/showApiErrors.js';
 
 $(function () {
@@ -309,47 +310,36 @@ $(function () {
             Modal.close();
             temporaryCoords = null;
 
-            $('#banner-text').text('Натисніть на карту, щоб обрати координати зупинки');
-            $('#btn-banner-confirm').addClass('hidden');
-            $('#map-selection-banner').removeClass('hidden');
-
             const map = getMap();
+
+            function finishStopSelection() {
+                Banner.hide();
+                if (map) map.disableMapClickSelection();
+                openAddStopModal();
+            }
+
+            Banner.show({
+                text: 'Натисніть на карту, щоб обрати координати зупинки',
+                showConfirm: false,
+                onConfirm: function () {
+                    if (temporaryCoords) {
+                        savedStopState.latitude = temporaryCoords.lat;
+                        savedStopState.longitude = temporaryCoords.lon;
+                    }
+                    finishStopSelection();
+                },
+                onCancel: finishStopSelection
+            });
+
             if (map) {
                 map.enableMapClickSelection(function (lat, lon) {
                     temporaryCoords = { lat, lon };
-                    $('#banner-text').text(`Точка обрана: ${lat}, ${lon}`);
-                    $('#btn-banner-confirm').removeClass('hidden');
+                    Banner.setText(`Точка обрана: ${lat}, ${lon}`);
+                    Banner.showConfirm(true);
                 });
             }
         });
     }
-
-    $('#btn-banner-confirm').on('click', function () {
-        if (!savedStopState) return;
-
-        if (temporaryCoords) {
-            savedStopState.latitude = temporaryCoords.lat;
-            savedStopState.longitude = temporaryCoords.lon;
-        }
-        $('#map-selection-banner').addClass('hidden');
-
-        const map = getMap();
-        if (map) map.disableMapClickSelection();
-
-        openAddStopModal();
-    });
-
-    $('#btn-banner-cancel').on('click', function () {
-        if (!savedStopState) return;
-
-        $('#map-selection-banner').addClass('hidden');
-
-        const map = getMap();
-        if (map) map.disableMapClickSelection();
-
-        temporaryCoords = null;
-        openAddStopModal();
-    });
 
     $('#open-modal-btn').on('click', function () {
         savedStopState = null;

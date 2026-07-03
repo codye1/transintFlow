@@ -4,7 +4,7 @@
 @{
     AssetManager.RegisterStyle("/css/views/Home/components/StopSidebar/stop-sidebar.css");
     AssetManager.RegisterScript("/lib/jquery-validation/dist/jquery.validate.min.js");
-    AssetManager.RegisterScript("/js/views/Home/components/StopSidebar/stopSidebar.js", isModule:true);
+    AssetManager.RegisterScript("/js/views/Home/components/StopSidebar/stopSidebar.js", isModule: true);
 }
 
 <aside class="sidebar">
@@ -15,31 +15,7 @@
     <ul class="stop-list">
         @foreach (var stop in Model.Stops)
         {
-            <li class="stop-item" data-id="@stop.Id"
-                 data-lat="@stop.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture)"
-                 data-lon="@stop.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture)">
-
-                <span class="stop-marker">📍</span>
-
-                <div class="stop-name"><b>@stop.Name</b></div>
-
-                @if (Model.User != null && (stop.CreatedById == Model.User.Id || Model.User.Roles.Contains(AppRole.Admin) || Model.User.Roles.Contains(AppRole.Moderator)))
-                {
-                    <div class="editing-container">
-                        <input type="text" class="edit-input" value="@stop.Name" autocomplete="off" />
-                    </div>
-
-                    <div class="stop-actions view-actions">
-                        <button class="icon-btn btn-edit-stop" title="Редагувати"><img src="~/images/icons/edit.svg" alt="EditIcon" /></button>
-                        <button class="icon-btn btn-delete-stop" title="Видалити"><img src="~/images/icons/delete.svg" alt="CloseIcon" /></button>
-                    </div>
-
-                    <div class="stop-actions edit-actions">
-                        <button class="icon-btn btn-edit-accept" title="Зберегти"><img src="~/images/icons/accept.svg" alt="AcceptIcon" /></button>
-                        <button class="icon-btn btn-edit-close" title="Скасувати"><img src="~/images/icons/close.svg" alt="CloseIcon" /></button>
-                    </div>
-                }
-            </li>
+            @await Html.PartialAsync("/Views/Home/Components/StopSidebar/Partials/_StopItem.cshtml", new StopItemViewModel { Stop = stop, User = Model.User })
         }
     </ul>
 

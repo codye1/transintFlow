@@ -1,7 +1,42 @@
 ﻿@model TransitFlow.mvc.Models.HomeViewModel
+@{
 
+    var onRoute = Model.Vehicles.Count(v => v.Status == "OnRoute");
+    var activityPct = Model.Vehicles.Count > 0
+        ? (int)Math.Round((double)onRoute / Model.Vehicles.Count * 100)
+        : 0;
+}
 <div class="stats-container">
-    <div class="stat-badge">Маршрути: <b>@Model.Routes.Count</b></div>
-    <div class="stat-badge">Зупинки: <b>@Model.Stops.Count</b></div>
-    <div class="stat-badge">Транспорт: <b>@Model.Vehicles.Count</b></div>
+    <div class="stat-badge">
+        <div class="stat-badge-header">
+            <img class="stat-icon " src="~/images/icons/routeIcon.svg" alt="RouteIcon" />
+            <span class="stat-label">Маршрутів</span>
+        </div>
+        <div class="stat-value" id="stat-routes-count">@Model.Routes.Count</div>
+        <div class="stat-sub" id="stat-routes-sub">@Model.Routes.Count на карті</div>
+    </div>
+    <div class="stat-badge">
+        <div class="stat-badge-header">
+            <img class="stat-icon " src="~/images/icons/stopIcon.svg" alt="StopIcon" />
+            <span class="stat-label">Зупинок</span>
+        </div>
+        <div class="stat-value" id="stat-stops-count">@Model.Stops.Count</div>
+        <div class="stat-sub" id="stat-stops-sub">@Model.Stops.Count на карті</div>
+    </div>
+    <div class="stat-badge">
+        <div class="stat-badge-header">
+            <img class="stat-icon " src="~/images/icons/vehicleIcon.svg" alt="VehicleIcon" />
+            <span class="stat-label">Транспорт</span>
+        </div>
+        <div class="stat-value" id="stat-vehicles-count">@Model.Vehicles.Count</div>
+        <div class="stat-sub" id="stat-vehicles-sub">@onRoute на маршруті</div>
+    </div>
+    <div class="stat-badge">
+        <div class="stat-badge-header">
+            <img class="stat-icon " src="~/images/icons/activityIcon.svg" alt="ActivityIcon" />
+            <span class="stat-label">Активність</span>
+        </div>
+        <div class="stat-value" id="stat-activity-pct">@activityPct%</div>
+        <div class="stat-sub">завантаження</div>
+    </div>
 </div>
